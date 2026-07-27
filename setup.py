@@ -2,13 +2,10 @@
 Module for setup hostapd shared library
 """
 
-import shutil
-
 from setuptools import setup
 from distutils.command.build_ext import build_ext
 import roguehostapd.buildutil.buildcommon as buildcommon
 import roguehostapd.buildutil.buildexception as buildexception
-from roguehostapd.config.hostapdconfig import WHITE, RED
 
 # define project information
 NAME = "roguehostapd"
@@ -39,3 +36,18 @@ try:
 except buildexception.SharedLibMissError as exobj:
     RED = "\033[31m"
     WHITE = "\033[0m"
+    print(
+        "["
+        + RED
+        + "!"
+        + WHITE
+        + "] "
+        + (
+            "The development package for "
+            + exobj.libname
+            + " is missing. Please download it and restart the compilation."
+            "If you are on Debian-based system: 'apt-get install{}'.".format(
+                "".join(" " + package for package in exobj.packages)
+            )
+        )
+    )
