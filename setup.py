@@ -37,18 +37,5 @@ try:
         ext_modules=EXT_MODULE,
     )
 except buildexception.SharedLibMissError as exobj:
-    print(
-        "["
-        + RED
-        + "!"
-        + WHITE
-        + "] "
-        + (
-            "The development package for "
-            + exobj.libname
-            + " is missing. Please download it and restart the compilation."
-            "If you are on Debian-based system: 'apt-get install{}'.".format(
-                "".join(" " + package for package in exobj.packages)
-            )
-        )
-    )
+    RED = "\033[31m"
+    WHITE = "\033[0m"
