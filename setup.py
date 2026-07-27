@@ -4,10 +4,7 @@ Module for setup hostapd shared library
 
 import shutil
 
-try:
-    from setuptools import setup
-except ImportError:
-    from distutils.core import setup
+from setuptools import setup
 from distutils.command.build_ext import build_ext
 import roguehostapd.buildutil.buildcommon as buildcommon
 import roguehostapd.buildutil.buildexception as buildexception
@@ -55,5 +52,3 @@ except buildexception.SharedLibMissError as exobj:
             )
         )
     )
-finally:
-    shutil.rmtree("tmp")
