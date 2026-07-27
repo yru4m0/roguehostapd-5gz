@@ -1,0 +1,19 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: sudo apt-get update && sudo apt-get install -y libnl-3-dev libnl-genl-3-dev libssl-dev
+      - run: uv pip install .
+      - name: Check import works
+        run: python3 -c "import roguehostapd.apctrl; print('OK')"

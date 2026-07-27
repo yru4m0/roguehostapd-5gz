@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 """
 This module was made to wrap the hostapd
 """
@@ -8,30 +8,38 @@ import threading
 import ctypes
 import glob
 from roguehostapd.config.hostapdconfig import (
-    HostapdConfig, HOSTAPD_EXECUTION_PATH, HOSTAPD_DIR, 
-    ROGUEHOSTAPD_RUNTIME_CONFIGPATH, 
-    ROGUEHOSTAPD_DENY_MACS_CONFIGPATH)
+    HostapdConfig,
+    HOSTAPD_EXECUTION_PATH,
+    HOSTAPD_DIR,
+    ROGUEHOSTAPD_RUNTIME_CONFIGPATH,
+    ROGUEHOSTAPD_DENY_MACS_CONFIGPATH,
+)
+
 
 def find_so():
     """
     Find roguehostapd .so file
     """
 
-    so = glob.glob(HOSTAPD_DIR + '/hostapd/*.so')
+    so = glob.glob(HOSTAPD_DIR + "/hostapd/*.so")
     return so[0]
+
 
 class KarmaData(ctypes.Structure):
     """
     Handle the hostapd return mac/ssid data
     """
+
     pass
 
 
-KarmaData._fields_ = [("is_assoc", ctypes.c_ubyte), ("ssid_len",
-                                                     ctypes.c_size_t),
-                      ("ssid", ctypes.c_ubyte * 32), ("mac_addr",
-                                                      ctypes.c_ubyte * 6),
-                      ("next_data", ctypes.POINTER(KarmaData))]
+KarmaData._fields_ = [
+    ("is_assoc", ctypes.c_ubyte),
+    ("ssid_len", ctypes.c_size_t),
+    ("ssid", ctypes.c_ubyte * 32),
+    ("mac_addr", ctypes.c_ubyte * 6),
+    ("next_data", ctypes.POINTER(KarmaData)),
+]
 
 
 class Hostapd(object):
@@ -77,13 +85,13 @@ class Hostapd(object):
                     ssid_len = int(current.contents.ssid_len)
                     # convert mac address to string
                     mac_addr = current.contents.mac_addr
-                    mac_l = [format(mac_addr[i], 'x') for i in range(6)]
-                    mac_str = ':'.join(mac_l)
+                    mac_l = [format(mac_addr[i], "x") for i in range(6)]
+                    mac_str = ":".join(mac_l)
 
                     # convert ssid to string
                     ssid_buf = current.contents.ssid
                     ssid_list = [ssid_buf[i] for i in range(ssid_len)]
-                    ssid = ''.join(map(chr, ssid_list))
+                    ssid = "".join(map(chr, ssid_list))
                     ret.append((mac_str, ssid))
                 current = current.contents.next_data
         return ret
@@ -149,7 +157,7 @@ class Hostapd(object):
         # get the hostapd command to lunch the hostapd
         hostapd_cmd = [
             HOSTAPD_EXECUTION_PATH.encode("utf-8"),
-            ROGUEHOSTAPD_RUNTIME_CONFIGPATH.encode("utf-8")
+            ROGUEHOSTAPD_RUNTIME_CONFIGPATH.encode("utf-8"),
         ]
         for key in self.config_obj.options:
             if self.config_obj.options[key]:
@@ -163,12 +171,12 @@ class Hostapd(object):
         self.hostapd_lib = ctypes.cdll.LoadLibrary(libpath)
 
         # init hostapd lib info
-        self.hostapd_lib.get_assoc_karma_data.restype = ctypes.POINTER(
-            KarmaData)
+        self.hostapd_lib.get_assoc_karma_data.restype = ctypes.POINTER(KarmaData)
 
         # start the hostapd thread
         self.hostapd_thread = threading.Thread(
-            target=self.hostapd_lib.main, args=(len(hostapd_cmd), hostapd_cmd))
+            target=self.hostapd_lib.main, args=(len(hostapd_cmd), hostapd_cmd)
+        )
         self.hostapd_thread.start()
 
     def stop(self):
@@ -192,26 +200,26 @@ class Hostapd(object):
             os.remove(ROGUEHOSTAPD_DENY_MACS_CONFIGPATH)
 
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     HOSTAPD_CONFIG_DICT = {
-        'ssid': 'test',
-        'interface': 'wlan0',
-        'karma_enable': 1,
-        'deny_macs': ['00:00:00:11:22:33']
+        "ssid": "test",
+        "interface": "wlan0",
+        "karma_enable": 1,
+        "deny_macs": ["00:00:00:11:22:33"],
     }
 
     HOSTAPD_OPTION_DICT = {
-        'debug_verbose': True,
-        'key_data': True,
-        'timestamp': False,
-        'version': False,
-        'mute': True,
-        'eloop_term_disable': True
+        "debug_verbose": True,
+        "key_data": True,
+        "timestamp": False,
+        "version": False,
+        "mute": True,
+        "eloop_term_disable": True,
     }
     HOSTAPD_OBJ = Hostapd()
     HOSTAPD_OBJ.start(HOSTAPD_CONFIG_DICT, HOSTAPD_OPTION_DICT)
     import time
+
     while True:
         try:
             time.sleep(1)

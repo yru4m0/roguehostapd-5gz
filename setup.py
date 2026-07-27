@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """
 Module for setup hostapd shared library
 """
@@ -8,14 +8,13 @@ import sys
 import shutil
 from textwrap import dedent
 import tempfile
-import distutils.sysconfig
-import distutils.ccompiler
-from distutils.errors import CompileError, LinkError
 from setuptools import Extension, setup
-from distutils.command.build_ext import build_ext
+from setuptools.command.build_ext import build_ext
+from setuptools._distutils import sysconfig, ccompiler
+from setuptools.errors import CompileError, LinkError
 
 HOSTAPD_DIR = os.path.dirname(os.path.abspath(__file__))
-HOSTAPD_SRC = os.path.join(HOSTAPD_DIR, "roguehostapd", "hostapd", "src")
+HOSTAPD_SRC = os.path.join(HOSTAPD_DIR, "roguehostapd", "hostapd-2_6", "hostapd", "src")
 HOSTAPD_UTILS = os.path.join(HOSTAPD_SRC, "utils")
 LIB_NL3_PATH = "/usr/include/libnl3"
 LIB_SSL_PATH = "/usr/include/openssl"
@@ -29,9 +28,8 @@ HOSTAPD_MACROS = [
 
 
 def get_all_source_files():
-    src_dir = os.path.join(HOSTAPD_DIR, "roguehostapd", "hostapd", "src")
     sources = []
-    for root, dirs, files in os.walk(src_dir):
+    for root, dirs, files in os.walk(HOSTAPD_SRC):
         for f in files:
             if f.endswith(".c"):
                 sources.append(os.path.join(root, f))
@@ -69,8 +67,8 @@ def check_required_library(libname, libraries=None, include_dir=None):
     code = LIBNL_CODE if libname == "netlink" else OPENSSL_CODE
     with open(file_name, "w") as filep:
         filep.write(code)
-    compiler = distutils.ccompiler.new_compiler()
-    distutils.sysconfig.customize_compiler(compiler)
+    compiler = ccompiler.new_compiler()
+    sysconfig.customize_compiler(compiler)
     try:
         compiler.link_executable(
             compiler.compile([file_name], include_dirs=include_dir),
@@ -84,25 +82,19 @@ def check_required_library(libname, libraries=None, include_dir=None):
     return build_success
 
 
-# define project information
-NAME = "roguehostapd"
-PACKAGES = ["roguehostapd", "examples", "roguehostapd.config", "roguehostapd.buildutil"]
-PACKAGE_DIR = {"roguehostapd": "roguehostapd"}
-PACKAGE_DATA = {"roguehostapd": ["config/hostapd.conf", "config/config.ini"]}
-VERSION = "1.1.2"
-DESCRIPTION = "Hostapd wrapper for hostapd"
-URL = "https://github.com/wifiphisher/roguehostapd"
-AUTHOR = "Anakin"
-
 if not check_required_library("netlink", ["nl-3", "nl-genl-3"], [LIB_NL3_PATH]):
     print(
-        "[!] The development package for netlink is missing. Please download it and restart the compilation. apt-get install libnl-3-dev libnl-genl-3-dev"
+        "[!] The development package for netlink is missing. Please "
+        "download it and restart the compilation. "
+        "apt-get install libnl-3-dev libnl-genl-3-dev"
     )
     sys.exit(1)
 
 if not check_required_library("openssl", ["ssl"], [LIB_SSL_PATH]):
     print(
-        "[!] The development package for openssl is missing. Please download it and restart the compilation. apt-get install libssl-dev"
+        "[!] The development package for openssl is missing. Please "
+        "download it and restart the compilation. "
+        "apt-get install libssl-dev"
     )
     sys.exit(1)
 
@@ -115,16 +107,7 @@ ext_module = Extension(
 )
 
 setup(
-    name=NAME,
-    packages=PACKAGES,
-    package_dir=PACKAGE_DIR,
-    package_data=PACKAGE_DATA,
-    version=VERSION,
-    description=DESCRIPTION,
-    url=URL,
-    author=AUTHOR,
-    install_requires=[],
-    zip_safe=False,
-    cmdclass={"build_ext": build_ext},
     ext_modules=[ext_module],
+    cmdclass={"build_ext": build_ext},
+    zip_safe=False,
 )

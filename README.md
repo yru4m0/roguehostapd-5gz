@@ -1,21 +1,26 @@
 # roguehostapd
+
 Roguehostapd is a fork of hostapd, the famous user space software access point. It provides Python ctypes bindings and a number of additional attack features. It was primarily developed for use in the Wifiphisher project.
+
+## Requirements
+
+- Python 3.9 or later
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
+- System packages: `libnl-3-dev`, `libnl-genl-3-dev`, `libssl-dev`
+- A C compiler (gcc/clang)
 
 ## Build
 
-To build the latest development version type the following commands:
 ```bash
-git clone https://github.com/wifiphisher/roguehostapd.git # Download the latest version
-cd roguehostapd # Switch to the roguehostapd directory
-python setup.py install # Build the shared library of hostapd
+git clone https://github.com/yru4m0/roguehostapd-5gz.git
+cd roguehostapd-5gz
+uv pip install -e .
 ```
 
 ## Usage
 
-***
-
 ```shell
-python run.py -i wlan0 -ssid haha
+uv run python roguehostapd/run.py -i wlan0 -ssid haha
 ```
 
 Use wlan0 for spawning the OPEN rogue AP on channel 6 and the ssid is haha.
@@ -23,15 +28,15 @@ Use wlan0 for spawning the OPEN rogue AP on channel 6 and the ssid is haha.
 ***
 
 ```shell
-python run.py -i wlan0 -ssid haha -pK 12345678
+uv run python roguehostapd/run.py -i wlan0 -ssid haha -pK 12345678
 ```
 
-Use wlan0 for spawning the WPA2/WPA rogue AP with passhrase 12345678
+Use wlan0 for spawning the WPA2/WPA rogue AP with passphrase 12345678
 
 ***
 
 ```shell
-python run.py -i wlan0 -ssid haha -kA
+uv run python roguehostapd/run.py -i wlan0 -ssid haha -kA
 ```
 
 Use wlan0 for spawning the OPEN rogue AP supporting the KARMA attack.
@@ -52,7 +57,7 @@ HOSTAPD_OBJ.start(HOSTAPD_CONFIG_DICT, HOSTAPD_OPTION_DICT)
 
 The above configuration will perform the KARMA attack.
 
-Following are all the options along with their descriptions (also available with `python run.py -h`)
+Following are all the options along with their descriptions (also available with `python run.py -h`):
 
 
 | Short form | Long form | Explanation |
